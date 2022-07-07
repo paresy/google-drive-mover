@@ -11,8 +11,8 @@ use Google\Client;
 function getClient()
 {
     $client = new Client();
-    $client->setApplicationName('Google Drive API PHP Quickstart');
-    $client->setScopes('https://www.googleapis.com/auth/drive.metadata.readonly');
+    $client->setApplicationName('Google Drive Mover');
+    $client->setScopes('https://www.googleapis.com/auth/drive');
     $client->setAuthConfig('credentials.json');
     $client->setAccessType('offline');
     $client->setPrompt('select_account consent');
