@@ -15,12 +15,12 @@ $service = new Drive($client);
 // Count how many files someone owns
 $ownerShipCounter = [];
 
-// FolderID of our "GmbH" folder
-inspectFolder('xxxxx', ["GmbH"]);
+// FolderID of our My Drive folder
+inspectFolder('xxxxx');
 
 print_r($ownerShipCounter);
 
-function inspectFolder($folderID, $levelInformation)
+function inspectFolder($folderID, $levelInformation = [])
 {
     global $ownerShipCounter, $service;
     do {
