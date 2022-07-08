@@ -8,3 +8,6 @@ $targetFolderID = '';
 
 // Just print files which will be moved, but do not move them
 $dryRun = true;
+
+// Also show progress on skippe files (a lot more verbose)
+$showSkipped = true;

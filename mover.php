@@ -17,13 +17,13 @@ $service = new Drive($client);
 $folderCache = [];
 
 // This will move all files from the source folder of my drive to the target folder of the shared drive
-moveFiles($sourceFolderID, $targetFolderID);
+moveFiles($sourceFolderID);
 
 // Test Folder generation in target folder
 //echo getTargetFolder($targetFolderID, ["Test Level 1", "Test Level 2", "Test Level 3"]);
 
-function getTargetFolder($targetFolderID, $levelInformation) {
-    global $service, $folderCache;
+function getTargetFolder($levelInformation) {
+    global $service, $targetFolderID, $folderCache;
 
     $folderID = null;
     $currentLevel = &$folderCache;
@@ -72,13 +72,13 @@ function getTargetFolder($targetFolderID, $levelInformation) {
     return $folderID;
 }
 
-function moveFiles($sourceFolderID, $targetFolderID, $levelInformation = [])
+function moveFiles($sourceFolderID, $levelInformation = [])
 {
-    global $service;
+    global $service, $dryRun;
     do {
         $optParams = [
             'pageSize' => 100,
-            'fields' => 'nextPageToken, files(id, mimeType, name, parents, ownedByMe)',
+            'fields' => 'nextPageToken, files(id, mimeType, name, owners, parents, ownedByMe)',
             'q' => "'$sourceFolderID' in parents",
         ];
         if (isset($token)) {
@@ -87,22 +87,27 @@ function moveFiles($sourceFolderID, $targetFolderID, $levelInformation = [])
         $results = $service->files->listFiles($optParams);
         foreach ($results->getFiles() as $file) {
             if ($file->getMimeType() == 'application/vnd.google-apps.folder') {
-                //inspectFolder($file->getId(), array_merge($levelInformation, [$file->getName()]));
+                moveFiles($file->getId(), array_merge($levelInformation, [$file->getName()]));
             } else {
                 if ($file->getOwnedByMe()) {
                     // Move file into new Shared Drive
                     printf("%s > %s\n", implode(" > ", $levelInformation), $file->getName());
 
-                    $emptyFile = new Google_Service_Drive_DriveFile();
-                    $service->files->update(
-                        $file->getId(),
-                        $emptyFile,
-                        [
-                            'supportsAllDrives' => true,
-                            'addParents' => getTargetFolder($targetFolderID, $levelInformation),
-                            'removeParents' => $file->getParents()
-                        ]
-                    );
+                    if (!$dryRun) {
+                        $emptyFile = new Google_Service_Drive_DriveFile();
+                        $service->files->update(
+                            $file->getId(),
+                            $emptyFile,
+                            [
+                                'supportsAllDrives' => true,
+                                'addParents' => getTargetFolder($levelInformation),
+                                'removeParents' => $file->getParents()
+                            ]
+                        );
+                    }
+                }
+                else {
+                    printf("SKIPPED: %s > %s, (Owner: %s)\n", implode(" > ", $levelInformation), $file->getName(), $file->getOwners()[0]->getDisplayName());
                 }
             }
         }
