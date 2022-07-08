@@ -78,7 +78,7 @@ function moveFiles($sourceFolderID, $levelInformation = [])
     do {
         $optParams = [
             'pageSize' => 100,
-            'fields' => 'nextPageToken, files(id, mimeType, name, owners, parents, ownedByMe)',
+            'fields' => 'nextPageToken, files(id, mimeType, name, owners, parents, ownedByMe, trashed)',
             'q' => "'$sourceFolderID' in parents",
         ];
         if (isset($token)) {
@@ -97,6 +97,12 @@ function moveFiles($sourceFolderID, $levelInformation = [])
                 printf("SHORTCUT: %s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
             }
             else {
+                // We cannot move trashed files. Just skip them.
+                if ($file->getTrashed()) {
+                    if ($showSkipped) {
+                        printf("TRASHED: %s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
+                    }
+                }
                 if ($file->getOwnedByMe()) {
                     // Move file into new Shared Drive
                     printf("%s\n", implode(" > ", array_merge($levelInformation, [$file->getName()])));
