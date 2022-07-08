@@ -12,7 +12,7 @@ $dryRun = true;
 // Exit after first move operation. Nice option to test file by files before doing the big job
 $quitAfterFirst = false;
 
-// Also show progress on skipped files (a lot more verbose)
+// Also show progress on skipped/trashed files (a lot more verbose)
 $showSkipped = true;
 
 // Also show progress on each visited folder (a lot more verbose)
