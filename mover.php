@@ -94,12 +94,12 @@ function moveFiles($sourceFolderID, $levelInformation = [])
             } else {
                 if ($file->getOwnedByMe()) {
                     // Move file into new Shared Drive
-                    printf("%s > %s\n", implode(" > ", $levelInformation), $file->getName());
+                    printf("%s\n", implode(" > ", array_merge($levelInformation, [$file->getName()])));
 
                     if (!$dryRun) {
                         $folderID = getTargetFolder($levelInformation);
 
-                        printf("> Moving %s to %s\n", $file->getId(), $folderID);
+                        printf("*** Moving %s to %s\n", $file->getId(), $folderID);
 
                         $emptyFile = new Google_Service_Drive_DriveFile();
                         $service->files->update(
