@@ -103,7 +103,7 @@ function moveFiles($sourceFolderID, $levelInformation = [])
                         printf("TRASHED: %s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
                     }
                 }
-                if ($file->getOwnedByMe()) {
+                else if ($file->getOwnedByMe()) {
                     // Move file into new Shared Drive
                     printf("%s\n", implode(" > ", array_merge($levelInformation, [$file->getName()])));
 
