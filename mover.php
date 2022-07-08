@@ -77,7 +77,7 @@ function getTargetFolder($levelInformation) {
 
 function moveFiles($sourceFolderID, $levelInformation = [])
 {
-    global $service, $dryRun, $quitAfterFirst;
+    global $service, $dryRun, $quitAfterFirst, $showSkipped, $showFolders;
     do {
         $optParams = [
             'pageSize' => 100,
@@ -90,6 +90,9 @@ function moveFiles($sourceFolderID, $levelInformation = [])
         $results = $service->files->listFiles($optParams);
         foreach ($results->getFiles() as $file) {
             if ($file->getMimeType() == 'application/vnd.google-apps.folder') {
+                if ($showFolders) {
+                    printf("FOLDER: %s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
+                }
                 moveFiles($file->getId(), array_merge($levelInformation, [$file->getName()]));
             } else {
                 if ($file->getOwnedByMe()) {
@@ -117,7 +120,9 @@ function moveFiles($sourceFolderID, $levelInformation = [])
                     }
                 }
                 else {
-                    printf("SKIPPED: %s > %s, (Owner: %s)\n", implode(" > ", $levelInformation), $file->getName(), $file->getOwners()[0]->getDisplayName());
+                    if ($showSkipped) {
+                        printf("SKIPPED: %s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
+                    }
                 }
             }
         }

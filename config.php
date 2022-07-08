@@ -6,11 +6,14 @@ $sourceFolderID = '';
 // This is the ID of the shared drive. Use drives.php to get IDs
 $targetFolderID = '';
 
-// Just print files which will be moved, but do not move them
 $dryRun = true;
-
-// Also show progress on skippe files (a lot more verbose)
-$showSkipped = true;
+// Just print files which will be moved/deleted, but do not move/delete them
 
 // Exit after first move operation. Nice option to test file by files before doing the big job
-$quitAfterFirst = true;
+$quitAfterFirst = false;
+
+// Also show progress on skipped files (a lot more verbose)
+$showSkipped = true;
+
+// Also show progress on each visited folder (a lot more verbose)
+$showFolders = true;

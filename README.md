@@ -20,5 +20,6 @@ At the end `cleanup.php` may be called. Due to mixed permissions the cleanup scr
 * Everyone also needs to be granted access to the target Shared Drive
 * Update folder IDs in the `config.php`
 * Make a dry run with `php mover.php` and verify that it identifies the correct files
+* Clear your Google Drive Trash! Trashed files cannot be moved an will fail the mover!
 * Update the `$dryRun` variable to false and run `php mover.php`again
 * For very big drives keep in mind that there is a daily API request limit!
