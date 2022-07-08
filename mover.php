@@ -20,7 +20,7 @@ $folderCache = [];
 moveFiles($sourceFolderID);
 
 // Test Folder generation in target folder
-//echo getTargetFolder($targetFolderID, ["Test Level 1", "Test Level 2", "Test Level 3"]);
+//echo getTargetFolder(["Test Level 1", "Test Level 2", "Test Level 3"]);
 
 function getTargetFolder($levelInformation) {
     global $service, $targetFolderID, $folderCache;
@@ -52,7 +52,7 @@ function getTargetFolder($levelInformation) {
                 $file = new \Google_Service_Drive_DriveFile();
                 $file->setName($name);
                 $file->setMimeType('application/vnd.google-apps.folder');
-                $file->setParents([$folderID]);
+                $file->setParents([$folderID ? $folderID : $targetFolderID]);
 
                 $folder = $service->files->create($file, [
                     'supportsAllDrives' => true
@@ -69,12 +69,15 @@ function getTargetFolder($levelInformation) {
         }
         $currentLevel = &$currentLevel[$name]["children"];
     }
+    if (!$folderID) {
+        die("FolderID could not be determined/created!");
+    }
     return $folderID;
 }
 
 function moveFiles($sourceFolderID, $levelInformation = [])
 {
-    global $service, $dryRun;
+    global $service, $dryRun, $quitAfterFirst;
     do {
         $optParams = [
             'pageSize' => 100,
@@ -94,16 +97,23 @@ function moveFiles($sourceFolderID, $levelInformation = [])
                     printf("%s > %s\n", implode(" > ", $levelInformation), $file->getName());
 
                     if (!$dryRun) {
+                        $folderID = getTargetFolder($levelInformation);
+
+                        printf("> Moving %s to %s\n", $file->getId(), $folderID);
+
                         $emptyFile = new Google_Service_Drive_DriveFile();
                         $service->files->update(
                             $file->getId(),
                             $emptyFile,
                             [
                                 'supportsAllDrives' => true,
-                                'addParents' => getTargetFolder($levelInformation),
+                                'addParents' => $folderID,
                                 'removeParents' => $file->getParents()
                             ]
                         );
+                        if ($quitAfterFirst) {
+                            die("Quit after first move is enabled!");
+                        }
                     }
                 }
                 else {

@@ -11,3 +11,6 @@ $dryRun = true;
 
 // Also show progress on skippe files (a lot more verbose)
 $showSkipped = true;
+
+// Exit after first move operation. Nice option to test file by files before doing the big job
+$quitAfterFirst = true;
