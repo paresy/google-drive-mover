@@ -5,6 +5,7 @@ if (php_sapi_name() != 'cli') {
 }
 
 require __DIR__ . '/client.php';
+require __DIR__ . '/config.php';
 
 use Google\Service\Drive;
 
@@ -15,8 +16,8 @@ $service = new Drive($client);
 // Count how many files someone owns
 $ownerShipCounter = [];
 
-// FolderID of our My Drive folder
-inspectFolder('xxxxx');
+// Traverse the folders of our My Drive folder
+inspectFolder($sourceFolderID);
 
 print_r($ownerShipCounter);
 
@@ -34,7 +35,7 @@ function inspectFolder($folderID, $levelInformation = [])
         }
         $results = $service->files->listFiles($optParams);
         foreach ($results->getFiles() as $file) {
-            printf("%s > %s\n", implode(" > ", $levelInformation), $file->getName());
+            printf("%s\n", implode(" > ", array_merge($levelInformation, [$file->getName()])));
 
             if ($file->getMimeType() == 'application/vnd.google-apps.folder') {
                 inspectFolder($file->getId(), array_merge($levelInformation, [$file->getName()]));
