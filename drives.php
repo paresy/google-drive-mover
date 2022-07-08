@@ -18,5 +18,5 @@ $optParams = [
 ];
 $results = $service->drives->listDrives($optParams);
 foreach ($results->getDrives() as $drive) {
-    printf("%s\n", $drive->getName());
+    printf("%s > %s\n", $drive->getName(), $drive->getId());
 }
