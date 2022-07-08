@@ -25,7 +25,7 @@ moveFiles($sourceFolderID);
 function getTargetFolder($levelInformation) {
     global $service, $targetFolderID, $folderCache;
 
-    $folderID = null;
+    $folderID = $targetFolderID;
     $currentLevel = &$folderCache;
     foreach($levelInformation as $name) {
         if (isset($currentLevel[$name])) {
@@ -42,7 +42,7 @@ function getTargetFolder($levelInformation) {
                 'includeItemsFromAllDrives' => true,
                 'corpora' => 'drive',
             ];
-            if ($folderID) {
+            if ($folderID != $targetFolderID) {
                 $optParams['q'] .= "and '$folderID' in parents";
             }
             $results = $service->files->listFiles($optParams);
@@ -52,7 +52,7 @@ function getTargetFolder($levelInformation) {
                 $file = new \Google_Service_Drive_DriveFile();
                 $file->setName($name);
                 $file->setMimeType('application/vnd.google-apps.folder');
-                $file->setParents([$folderID ? $folderID : $targetFolderID]);
+                $file->setParents([$folderID]);
 
                 $folder = $service->files->create($file, [
                     'supportsAllDrives' => true
@@ -68,9 +68,6 @@ function getTargetFolder($levelInformation) {
             $currentLevel[$name]["children"] = [];
         }
         $currentLevel = &$currentLevel[$name]["children"];
-    }
-    if (!$folderID) {
-        die("FolderID could not be determined/created!");
     }
     return $folderID;
 }
