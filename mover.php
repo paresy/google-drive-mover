@@ -91,7 +91,12 @@ function moveFiles($sourceFolderID, $levelInformation = [])
                     printf("FOLDER: %s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
                 }
                 moveFiles($file->getId(), array_merge($levelInformation, [$file->getName()]));
-            } else {
+            }
+            else if($file->getMimeType() == 'application/vnd.google-apps.shortcut') {
+                // Skip shortcuts
+                printf("SHORTCUT: %s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
+            }
+            else {
                 if ($file->getOwnedByMe()) {
                     // Move file into new Shared Drive
                     printf("%s\n", implode(" > ", array_merge($levelInformation, [$file->getName()])));
