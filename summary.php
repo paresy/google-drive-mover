@@ -27,7 +27,7 @@ function inspectFolder($folderID, $levelInformation = [])
     do {
         $optParams = [
             'pageSize' => 100,
-            'fields' => 'nextPageToken, files(id, mimeType, name, owners)',
+            'fields' => 'nextPageToken, files(id, mimeType, name, owners, trashed, webViewLink)',
             'q' => "'$folderID' in parents",
         ];
         if (isset($token)) {
@@ -35,11 +35,21 @@ function inspectFolder($folderID, $levelInformation = [])
         }
         $results = $service->files->listFiles($optParams);
         foreach ($results->getFiles() as $file) {
-            printf("%s\n", implode(" > ", array_merge($levelInformation, [$file->getName()])));
-
             if ($file->getMimeType() == 'application/vnd.google-apps.folder') {
                 inspectFolder($file->getId(), array_merge($levelInformation, [$file->getName()]));
-            } else {
+            }
+            else if($file->getMimeType() == 'application/vnd.google-apps.shortcut') {
+                // Skip shortcuts. They can be recursive and break the script.
+            }
+            else if ($file->getTrashed()) {
+                // Skip trashed files
+            }
+            else {
+                printf("%s, (Owner: %s)\n", implode(" > ", array_merge($levelInformation, [$file->getName()])), $file->getOwners()[0]->getDisplayName());
+
+                // Uncomment if you want to get links for all files
+                //printf("*** %s\n", $file->getWebViewLink());
+
                 $owner = $file->getOwners()[0]->getDisplayName() . " <" . $file->getOwners()[0]->getEmailAddress() . ">";
                 if (!isset($ownerShipCounter[$owner])) {
                     $ownerShipCounter[$owner] = 1;
